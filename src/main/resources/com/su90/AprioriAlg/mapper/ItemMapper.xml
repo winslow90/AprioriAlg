@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.su90.AprioriAlg.mapper.ItemMapper">
+	
+	<sql id="cols">id,name</sql>
+	<sql id="cols_insert">name</sql>
+
+	<resultMap type="com.su90.AprioriAlg.domain.Item" id="itemRM">		
+		<id property="id" column="ID"/>		
+		<result property="name" column="NAME"/>		
+	</resultMap>
+	
+	<select id="find" parameterType="map" resultMap="itemRM">
+		select <include refid="cols"/> from item
+		<where>
+		<if test="id!=null">and id = #{id}</if>
+		<if test="name!=null">and name like #{name}</if>		
+		</where>
+	</select>
+	
+	<select id="findin" parameterType="int" resultMap="itemRM">
+		select <include refid="cols"/> from item
+		where id in
+		(
+		<foreach collection="array" item="id" separator=",">
+			#{id}	
+		</foreach>
+		)
+	</select>
+	
+	<select id="get" parameterType="int" resultMap="itemRM">
+		select<include refid="cols"/>from item
+		where id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="com.su90.AprioriAlg.domain.Item">
+		insert into item
+		(<include refid="cols_insert"/>)
+		values
+		(#{name})
+	</insert>
+	
+	<update id="update" parameterType="com.su90.AprioriAlg.domain.Item">
+		update item
+		<set>
+			<if test="name!=null">name=#{name},</if>			
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteById" parameterType="int">
+		delete from item
+		where id = #{id}
+	</delete>
+	
+	<delete id="deleteArray" parameterType="int">
+		delete from item 
+		where id in
+		(
+		<foreach collection="array" item="id" separator=",">
+			#{id}	
+		</foreach>
+		)
+	</delete>
+	
+	<delete id="deleteList" parameterType="int">
+		delete from item
+		where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<delete id="deleteMap" parameterType="map">
+		delete from item
+		where id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>		
+	</delete>
+	
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM item
+	</select>
+	
+	<select id="countPchsdItemsbyId" resultType="int" parameterType="int">
+		select count(distinct ti.tid)
+		from trans_item ti
+		where ti.iid = #{iid}
+	</select>
+	
+	<select id="countPchsdItemsbyName" resultType="int" parameterType="string">
+		select count(distinct ti.tid)
+		from trans_item ti join item i
+		where ti.iid = i.id and i.name=#{str};
+	</select>
+
+</mapper>
