@@ -37,7 +37,7 @@ public class AprioriAlgProcessor extends SpringUtil {
         
         for (Item item : allitems){
             Integer PchsdCount = itemService.countPchsdItemsbyID(item.getId());
-            if (PchsdCount > miniSupportNum){
+            if (PchsdCount >= miniSupportNum){
                 SearchItemType searchitem = new SearchItemType(transactionService, itemService);
                 searchitem.getSearchItems().add(item);                
                 operatoQueue.addLast(searchitem);
@@ -50,7 +50,7 @@ public class AprioriAlgProcessor extends SpringUtil {
                 SearchItemType newsearchitem = new SearchItemType(transactionService, itemService);
                 newsearchitem.getSearchItems().addAll(searchItem.getSearchItems());
                 newsearchitem.getSearchItems().add(item);
-                if (newsearchitem.countTransContainMe()>miniSupportNum){
+                if (newsearchitem.countTransContainMe()>=miniSupportNum){
                     intermediateResult.add(newsearchitem);
                     operatoQueue.addLast(newsearchitem);
                 }
@@ -64,8 +64,18 @@ public class AprioriAlgProcessor extends SpringUtil {
             _do_intermediatesearch(searchItem);
         }
     }
+    private void _printSearchItesms(ArrayList<Item> searchItems){
+        StringBuilder sb = new StringBuilder();
+        sb.append("<<");
+        for (Item item : searchItems){
+            sb.append(item.name).append(" ");
+        }
+        sb.append(">>");        
+        System.out.println(sb.toString());
+    }
     private void generateFinalResult(){
         for (SearchItemType searchitem : intermediateResult){
+            _printSearchItesms(searchitem.searchItems);
             searchitem.generateEquation();
         }        
     }

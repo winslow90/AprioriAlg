@@ -13,6 +13,7 @@ import java.util.Random;
 import java.util.UUID;
 
 public class DataInitializer extends SpringUtil {
+        private static int INITCID=1;
 	private TransactionService transactionService;
 	private ItemService itemService;        
 	
@@ -20,6 +21,40 @@ public class DataInitializer extends SpringUtil {
 		this.transactionService = (TransactionService) context.getBean("transactionService");                
 		this.itemService = (ItemService) context.getBean("itemService");		                
 	}
+        
+        public void formatToSelfDefinedData(String[] itemnames, String[][] transitemnamesstr){
+            cleanitems();
+            cleantransactions();
+            insertSelfDefinedItems(itemnames);
+            for(String[] strs: transitemnamesstr){
+                insertSelfDefinedTrans(strs);
+            }
+        }
+        private void insertSelfDefinedItems(String[] itemnames){
+//            String[] itemnames = new String[]{"A","B","C","D","E"};            
+            for (String name : itemnames){
+                Item it = new Item();
+                it.setName(name);
+                itemService.saveEntry(it);
+            }          
+        }
+        
+        private void insertSelfDefinedTrans(String[] transitemnames) {
+            Transaction trans;
+            ArrayList<Item> items;
+            
+            items= new ArrayList();
+            
+            for (String str: transitemnames){
+                items.add(itemService.findUniquelike(str));
+            }
+            
+            trans=new Transaction();
+            trans.setCid(INITCID++);
+            trans.setTdate(new Date());
+            trans.setItems(items);
+            transactionService.savenewTransItems(trans);
+        }
         
         public void formatToSampleDate(){
             cleanitems();
@@ -173,5 +208,6 @@ public class DataInitializer extends SpringUtil {
             transactionService.savenewTransItems(trans);                    
         }        
     }
+
 	
 }
